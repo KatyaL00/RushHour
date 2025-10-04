@@ -2,14 +2,31 @@ import tkinter
 
 WIDTH, HEIGHT =800,600
 
-root = tkinter.Tk()
-root.title("Rush Hour") 
-root.resizable(False, False)
+class rectangle:
+    x0 = 0
+    y0 = 0
+    x1 = 0
+    y1 = 0
 
-canvas = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="pink")
-canvas.pack()  
+    def __init__(self, x0, y0, x1, y1):
+        self.x0 = x0
+        self.y0 = y0
+        self.x1 = x1
+        self.y1 = y1
 
+    @classmethod
+    def from_points(cls, x0, y0, x1, y1):
+        return cls(x0, y0, x1, y1)
 
+    @classmethod
+    def from_size(cls, width, height):
+        return cls(0, 0, width, height)
+
+    def width(self):
+        return self.x1 - self.x0    
+    
+    def height(self):
+        return self.y1 - self.y0
 
 
 def draw_road(width):
@@ -26,33 +43,26 @@ def draw_road(width):
         y1, 
         fill="black"
     )
-    return x0,y0,x1,y1
+    road_box = rectangle.from_points(x0, y0, x1, y1)
 
-road_width = 220
-x0,y0,x1,y1 = draw_road(road_width)
+    return road_box
 
-def draw_car(x0,y0,x1,y1):
-    car_width = 30
-    car_height = 40
-    road_x = x0
-    road_quater = (x1 - x0) // 4
-    car_centre = road_x + road_quater 
-    car_x = car_centre - car_width // 2
-    car_y = y1 - car_height
-    car_x1 = car_centre + car_width // 2
-    car_y1 = y1 
-
+def draw_car(road_box):
+    car_box = rectangle.from_size(30, 40)
 
     car = canvas.create_rectangle(
-        car_x,
-        car_y,
-        car_x1,
-        car_y1,
+        car_box.x0,
+        car_box.y0,
+        car_box.x1,
+        car_box.y1,
         fill="blue"
     )
-    return car
 
-car = draw_car(x0,y0,x1,y1)
+    move_x = road_box.x0 + (road_box.width() // 4) - (car_box.width() // 2)
+    move_y = road_box.y1 - car_box.height()
+    canvas.move(car, move_x, move_y)
+
+    return car
 
 def update():
     car_pos = canvas.coords(car)
@@ -66,5 +76,23 @@ def update():
         root.after(50, update)
 
 
+root = tkinter.Tk()
+root.title("Rush Hour") 
+root.resizable(False, False)
+
+canvas = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="pink")
+canvas.pack()  
+
+
+road_width = 220
+road_box = draw_road(road_width)
+
+car = draw_car(road_box)
+
 update()
 root.mainloop()
+
+
+
+
+
