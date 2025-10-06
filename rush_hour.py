@@ -1,4 +1,5 @@
 import tkinter 
+import random
 
 WIDTH, HEIGHT =800,600
 
@@ -47,7 +48,7 @@ def draw_road(width):
 
     return road_box
 
-def draw_car(road_box):
+def spawn_car(road_box):
     car_box = rectangle.from_size(30, 40)
 
     car = canvas.create_rectangle(
@@ -62,18 +63,27 @@ def draw_car(road_box):
     move_y = road_box.y1 - car_box.height()
     canvas.move(car, move_x, move_y)
 
-    return car
+    cars.append(car)
+
+def move_cars():
+    for car in list(cars): 
+        car_pos = canvas.coords(car)
+        if car_pos[3] > 0:
+            x0 = 0
+            y0 = -10
+            canvas.move(car, x0, y0)
+        else:
+            canvas.delete(car)
+            cars.remove(car)
+
 
 def update():
-    car_pos = canvas.coords(car)
-    print("Car position:", car_pos)
-
-    if car_pos[3] > 0:
-        x0 = 0
-        y0 = -10
-
-        canvas.move(car, x0, y0)
-        root.after(50, update)
+    number = random.random()
+    if number < 0.1:
+        print("random number", number)
+        spawn_car(road_box)
+    move_cars()
+    root.after(50, update)
 
 
 root = tkinter.Tk()
@@ -86,8 +96,8 @@ canvas.pack()
 
 road_width = 220
 road_box = draw_road(road_width)
-
-car = draw_car(road_box)
+cars = []
+spawn_car(road_box)
 
 update()
 root.mainloop()
