@@ -16,11 +16,11 @@ class rectangle:
         self.y1 = y1
 
     @classmethod
-    def from_points(cls, x0, y0, x1, y1):
+    def create_from_points(cls, x0, y0, x1, y1):
         return cls(x0, y0, x1, y1)
 
     @classmethod
-    def from_size(cls, width, height):
+    def create_from_size(cls, width, height):
         return cls(0, 0, width, height)
 
     def width(self):
@@ -28,6 +28,73 @@ class rectangle:
     
     def height(self):
         return self.y1 - self.y0
+
+
+class car_down_up:
+    car_rectangle = None
+    color = "blue"
+
+    def __init__(self, canvas, road_box, car_box):
+        self.car_rectangle = canvas.create_rectangle(
+            car_box.x0,
+            car_box.y0,
+            car_box.x1,
+            car_box.y1,
+            fill=self.color
+        )
+
+        move_x = road_box.x0 + (road_box.width() // 4) - (car_box.width() // 2)
+        move_y = road_box.y1 - car_box.height()
+        canvas.move(self.car_rectangle, move_x, move_y)
+
+    @classmethod
+    def create_car(cls, canvas, road_box, car_box):
+        return cls(canvas, road_box, car_box)
+
+    def move(self, canvas):
+        car_pos = canvas.coords(self.car_rectangle)
+        if car_pos[3] > 0:
+            x0 = 0
+            y0 = -10
+            canvas.move(self.car_rectangle, x0, y0)
+            return True
+        else:
+            canvas.delete(self.car_rectangle)
+            return False
+
+
+class car_up_down:
+    car_rectangle = None
+    color = "blue"
+
+    def __init__(self, canvas, road_box, car_box):
+        self.car_rectangle = canvas.create_rectangle(
+            car_box.x0,
+            car_box.y0,
+            car_box.x1,
+            car_box.y1,
+            fill=self.color
+        )
+
+        move_x = road_box.x0 + (road_box.width() // 4) * 3 - (car_box.width() // 2)
+        move_y = 0
+        canvas.move(self.car_rectangle, move_x, move_y)
+
+    @classmethod
+    def create_car(cls, canvas, road_box, car_box):
+        return cls(canvas, road_box, car_box)
+
+    def move(self, canvas):
+        car_pos = canvas.coords(self.car_rectangle)
+        if car_pos[3] > 0:
+            x0 = 0
+            y0 = 10
+            canvas.move(self.car_rectangle, x0, y0)
+            return True
+        else:
+            canvas.delete(self.car_rectangle)
+            return False
+
 
 
 def draw_road(width):
@@ -44,38 +111,25 @@ def draw_road(width):
         y1, 
         fill="black"
     )
-    road_box = rectangle.from_points(x0, y0, x1, y1)
+    road_box = rectangle.create_from_points(x0, y0, x1, y1)
 
     return road_box
 
 def spawn_car(road_box):
-    car_box = rectangle.from_size(30, 40)
-
-    car = canvas.create_rectangle(
-        car_box.x0,
-        car_box.y0,
-        car_box.x1,
-        car_box.y1,
-        fill="blue"
-    )
-
-    move_x = road_box.x0 + (road_box.width() // 4) - (car_box.width() // 2)
-    move_y = road_box.y1 - car_box.height()
-    canvas.move(car, move_x, move_y)
-
-    cars.append(car)
+    car_box = rectangle.create_from_size(30, 40)
+    
+    number = random.random()
+    if number < 0.5:
+        item = car_up_down(canvas, road_box, car_box)
+    else:
+        item = car_down_up(canvas, road_box, car_box)
+    cars.append(item)
 
 def move_cars():
-    for car in list(cars): 
-        car_pos = canvas.coords(car)
-        if car_pos[3] > 0:
-            x0 = 0
-            y0 = -10
-            canvas.move(car, x0, y0)
-        else:
-            canvas.delete(car)
-            cars.remove(car)
-
+    for item in list(cars): 
+        if item.move(canvas) == False:
+            cars.remove(item)
+        
 
 def update():
     number = random.random()
