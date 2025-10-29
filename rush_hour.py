@@ -29,6 +29,53 @@ class rectangle:
     def height(self):
         return self.y1 - self.y0
 
+class direction:
+    UP_DOWN = 1
+    DOWN_UP = 2
+
+class car:
+    car_rectangle = None
+    color = "blue"
+    step = 0
+    final_point = 0
+
+    def __init__(self, canvas, road_box, car_box, route ):
+        self.car_rectangle = canvas.create_rectangle(
+            car_box.x0,
+            car_box.y0,
+            car_box.x1,
+            car_box.y1,
+            fill=self.color
+        )
+
+        if self.route ==direction.UP_DOWN:
+            move_x = road_box.x0 + (road_box.width() // 4) * 3 - (car_box.width() // 2)
+            move_y = 0
+            self.step = 10
+            self.final_point = road_box.height() + car_box.height()
+        else:
+            move_x = road_box.x0 + (road_box.width() // 4) - (car_box.width() // 2)
+            move_y = road_box.y1 - car_box.height()
+            self.step = -10
+            self.final_point = 0
+        canvas.move(self.car_rectangle, move_x, move_y)
+
+    @classmethod
+    def create_car(cls, canvas, road_box, car_box, route):
+        return cls(canvas, road_box, car_box, route)
+
+    def move(self, canvas):
+        car_pos = canvas.coords(self.car_rectangle)
+        
+
+        if car_pos[3] > self.final_point:
+            x0 = 0
+            y0 = self.step
+            canvas.move(self.car_rectangle, x0, y0)
+            return True
+        else:
+            canvas.delete(self.car_rectangle)
+            return False
 
 class car_down_up:
     car_rectangle = None
@@ -116,13 +163,16 @@ def draw_road(width):
     return road_box
 
 def spawn_car(road_box):
-    car_box = rectangle.create_from_size(30, 40)
-    
+    # choose random width in [15,30] and height in [20,40]
+    width = random.randint(15, 30)
+    height = random.randint(20, 40)
+
+    car_box = rectangle.create_from_size(width, height)
     number = random.random()
     if number < 0.5:
-        item = car_up_down(canvas, road_box, car_box)
+        item = car.create_car(canvas, road_box, car_box, direction.UP_DOWN)
     else:
-        item = car_down_up(canvas, road_box, car_box)
+        item = car.create_car(canvas, road_box, car_box, direction.DOWN_UP)
     cars.append(item)
 
 def move_cars():
