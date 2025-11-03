@@ -38,8 +38,13 @@ class car:
     color = "blue"
     step = 0
     final_point = 0
+    route = None
+    canvas = None
 
     def __init__(self, canvas, road_box, car_box, route ):
+
+        self.route = route
+        self.canvas = canvas
         self.car_rectangle = canvas.create_rectangle(
             car_box.x0,
             car_box.y0,
@@ -48,7 +53,7 @@ class car:
             fill=self.color
         )
 
-        if self.route ==direction.UP_DOWN:
+        if self.route == direction.UP_DOWN:
             move_x = road_box.x0 + (road_box.width() // 4) * 3 - (car_box.width() // 2)
             move_y = 0
             self.step = 10
@@ -58,89 +63,33 @@ class car:
             move_y = road_box.y1 - car_box.height()
             self.step = -10
             self.final_point = 0
-        canvas.move(self.car_rectangle, move_x, move_y)
+        self.canvas.move(self.car_rectangle, move_x, move_y)
 
-    @classmethod
-    def create_car(cls, canvas, road_box, car_box, route):
-        return cls(canvas, road_box, car_box, route)
-
-    def move(self, canvas):
-        car_pos = canvas.coords(self.car_rectangle)
+    def move(self) -> bool:
+        """Move the car in its designated direction and return whether it should continue moving.
         
-
-        if car_pos[3] > self.final_point:
-            x0 = 0
-            y0 = self.step
-            canvas.move(self.car_rectangle, x0, y0)
-            return True
-        else:
-            canvas.delete(self.car_rectangle)
+        Returns:
+            bool: False if the car has reached its endpoint and should be removed, True otherwise
+        """
+        car_pos = self.canvas.coords(self.car_rectangle)
+        current_y = car_pos[3]  # Bottom y-coordinate of the car
+        
+        # Check if car has reached its endpoint based on direction
+        has_reached_endpoint = False
+        if self.route == direction.UP_DOWN:
+            if current_y > self.final_point:
+                has_reached_endpoint = True
+        else:  # direction.DOWN_UP
+            if current_y < self.final_point:
+                has_reached_endpoint = True
+        
+        if has_reached_endpoint:
+            self.canvas.delete(self.car_rectangle)
             return False
-
-class car_down_up:
-    car_rectangle = None
-    color = "blue"
-
-    def __init__(self, canvas, road_box, car_box):
-        self.car_rectangle = canvas.create_rectangle(
-            car_box.x0,
-            car_box.y0,
-            car_box.x1,
-            car_box.y1,
-            fill=self.color
-        )
-
-        move_x = road_box.x0 + (road_box.width() // 4) - (car_box.width() // 2)
-        move_y = road_box.y1 - car_box.height()
-        canvas.move(self.car_rectangle, move_x, move_y)
-
-    @classmethod
-    def create_car(cls, canvas, road_box, car_box):
-        return cls(canvas, road_box, car_box)
-
-    def move(self, canvas):
-        car_pos = canvas.coords(self.car_rectangle)
-        if car_pos[3] > 0:
-            x0 = 0
-            y0 = -10
-            canvas.move(self.car_rectangle, x0, y0)
-            return True
-        else:
-            canvas.delete(self.car_rectangle)
-            return False
-
-
-class car_up_down:
-    car_rectangle = None
-    color = "blue"
-
-    def __init__(self, canvas, road_box, car_box):
-        self.car_rectangle = canvas.create_rectangle(
-            car_box.x0,
-            car_box.y0,
-            car_box.x1,
-            car_box.y1,
-            fill=self.color
-        )
-
-        move_x = road_box.x0 + (road_box.width() // 4) * 3 - (car_box.width() // 2)
-        move_y = 0
-        canvas.move(self.car_rectangle, move_x, move_y)
-
-    @classmethod
-    def create_car(cls, canvas, road_box, car_box):
-        return cls(canvas, road_box, car_box)
-
-    def move(self, canvas):
-        car_pos = canvas.coords(self.car_rectangle)
-        if car_pos[3] > 0:
-            x0 = 0
-            y0 = 10
-            canvas.move(self.car_rectangle, x0, y0)
-            return True
-        else:
-            canvas.delete(self.car_rectangle)
-            return False
+            
+        # Move the car one step in its direction
+        self.canvas.move(self.car_rectangle, 0, self.step)
+        return True
 
 
 
@@ -170,14 +119,14 @@ def spawn_car(road_box):
     car_box = rectangle.create_from_size(width, height)
     number = random.random()
     if number < 0.5:
-        item = car.create_car(canvas, road_box, car_box, direction.UP_DOWN)
+        item = car(canvas, road_box, car_box, direction.UP_DOWN)
     else:
-        item = car.create_car(canvas, road_box, car_box, direction.DOWN_UP)
+        item = car(canvas, road_box, car_box, direction.DOWN_UP)
     cars.append(item)
 
 def move_cars():
     for item in list(cars): 
-        if item.move(canvas) == False:
+        if item.move() == False:
             cars.remove(item)
         
 
