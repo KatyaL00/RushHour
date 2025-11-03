@@ -91,7 +91,22 @@ class car:
         self.canvas.move(self.car_rectangle, 0, self.step)
         return True
 
+class trafic_light:
+    trafic_light_box = None
+    canvas = None
 
+    def __init__(self, box, canvas):
+        self.canvas = canvas
+        self.trafic_light_box = canvas.create_rectangle(
+            box.x0,
+            box.y0,
+            box.x1,
+            box.y1,
+            fill= "green"
+        )
+
+    def update(self):
+        pass
 
 def draw_road(width):
     x0 = WIDTH // 2 - width // 2
@@ -109,7 +124,24 @@ def draw_road(width):
     )
     road_box = rectangle.create_from_points(x0, y0, x1, y1)
 
-    return road_box
+    
+    trafic_light_high = 40
+    trafic_light_x0 = x0
+    trafic_light_y0 = y1 // 2 - trafic_light_high // 2
+
+    trafic_light_x1 = x1
+    trafic_light_y1 = trafic_light_y0 + trafic_light_high 
+
+    trafic_light_box = rectangle.create_from_points(
+        trafic_light_x0,
+        trafic_light_y0,
+        trafic_light_x1,
+        trafic_light_y1        
+    )
+
+    light = trafic_light(trafic_light_box, canvas)   
+
+    return road_box, light
 
 def spawn_car(road_box):
     # choose random width in [15,30] and height in [20,40]
@@ -135,26 +167,29 @@ def update():
     if number < 0.1:
         print("random number", number)
         spawn_car(road_box)
+    light.update()
     move_cars()
     root.after(50, update)
 
 
-root = tkinter.Tk()
-root.title("Rush Hour") 
-root.resizable(False, False)
+if __name__ == "__main__":
+    root = tkinter.Tk()
+    root.title("Rush Hour") 
+    root.resizable(False, False)
 
-canvas = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="pink")
-canvas.pack()  
+    canvas = tkinter.Canvas(root, width=WIDTH, height=HEIGHT, bg="pink")
+    canvas.pack()  
 
 
-road_width = 220
-road_box = draw_road(road_width)
-cars = []
-spawn_car(road_box)
+    road_width = 220
+    road_box, light = draw_road(road_width)
+    
 
-update()
-root.mainloop()
+    cars = []
+    spawn_car(road_box)
 
+    update()
+    root.mainloop()
 
 
 
