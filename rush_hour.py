@@ -49,9 +49,9 @@ def spawn_car(road_box):
     car_box = rectangle.create_from_size(width, height)
     number = random.random()
     if number < 0.5:
-        item = car(canvas, road_box, car_box, direction.UP_DOWN)
+        item = car(canvas, road_box, car_box, direction.UP_DOWN, light)
     else:
-        item = car(canvas, road_box, car_box, direction.DOWN_UP)
+        item = car(canvas, road_box, car_box, direction.DOWN_UP, light)
     cars.append(item)
 
 def move_cars():

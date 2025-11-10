@@ -34,3 +34,6 @@ class traffic_light:
                 fill = self.colors[self.color_index]
             )
             self.last_change_time = current_time
+
+    def get_color(self) -> str:
+        return self.colors[self.color_index]
