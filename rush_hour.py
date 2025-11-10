@@ -63,7 +63,6 @@ def move_cars():
 def update():
     number = random.random()
     if number < 0.1:
-        print("random number", number)
         spawn_car(road_box)
     light.update()
     move_cars()
