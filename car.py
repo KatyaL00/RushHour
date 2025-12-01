@@ -39,7 +39,7 @@ class car:
         self.canvas.move(self.car_rectangle, move_x, move_y)
 
     def is_reached_endpoint(self, car_pos) -> bool:
-        current_y = car_pos[3]  # Bottom y-coordinate of the car
+        current_y = car_pos[3] 
         
         # Check if car has reached its endpoint based on direction
         has_reached_endpoint = False
@@ -59,7 +59,33 @@ class car:
         color = self.light.get_color()
         if color == "green":
             return True
-        return False
+        
+        car_can_move = False
+        light_possition = self.light.get_position()
+        if self.route == direction.UP_DOWN:
+            car_front_y = car_pos[3]
+            light_front_y = light_possition[1]
+            if car_front_y > light_front_y:
+                # car passed trafic light
+                car_can_move = True
+            else:
+                # car before trafic light
+                distance_to_light = light_front_y - car_front_y
+                if distance_to_light > self.step:
+                    car_can_move = True
+                
+        else:  # direction.DOWN_UP
+            car_front_y = car_pos[1]
+            light_front_y = light_possition[3]
+            if car_front_y < light_front_y:
+                # car passed trafic light
+                car_can_move = True
+            else:
+                # car before trafic light
+                distance_to_light = car_front_y - light_front_y
+                if distance_to_light > abs(self.step):
+                    car_can_move = True
+        return car_can_move
         
         #position = self.light.get_position()
         #new_car_pos = car_pos + self.step  

@@ -37,3 +37,7 @@ class traffic_light:
 
     def get_color(self) -> str:
         return self.colors[self.color_index]
+    
+    def get_position(self):
+        light_position = self.canvas.coords(self.traffic_light_box)
+        return light_position
