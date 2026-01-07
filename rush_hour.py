@@ -49,15 +49,21 @@ def spawn_car(road_box):
     car_box = rectangle.create_from_size(width, height)
     number = random.random()
     if number < 0.5:
-        item = car(canvas, road_box, car_box, direction.UP_DOWN, light)
+        car_in_front = cars_up_down[-1] if cars_up_down else None
+        item = car(canvas, road_box, car_box, direction.UP_DOWN, light, car_in_front)
+        cars_up_down.append(item)
     else:
-        item = car(canvas, road_box, car_box, direction.DOWN_UP, light)
-    cars.append(item)
+        car_in_front = cars_down_up[-1] if cars_down_up else None
+        item = car(canvas, road_box, car_box, direction.DOWN_UP, light, car_in_front)
+        cars_down_up .append(item)
 
 def move_cars():
-    for item in list(cars): 
+    for item in list(cars_up_down): 
         if item.move() == False:
-            cars.remove(item)
+            cars_up_down.remove(item)
+    for item in list(cars_down_up): 
+        if item.move() == False:
+            cars_down_up.remove(item)
         
 
 def update():
@@ -82,7 +88,8 @@ if __name__ == "__main__":
     road_box, light = draw_road(road_width)
     
 
-    cars = []
+    cars_up_down = []
+    cars_down_up = []
     spawn_car(road_box)
 
     update()
